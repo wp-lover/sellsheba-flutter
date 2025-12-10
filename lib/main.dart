@@ -1,35 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'core/config/app_theme.dart';
-import 'features/branch_management/presentation/pages/branch_selection_page.dart'; // Placeholder
+import 'core/routes/app_router.dart';
+import 'features/configuration/presentation/bloc/configuration_bloc.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'core/di/injection_container.dart' as di;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await di.init();
   runApp(const SellShebaConnectApp());
 }
 
-class SellShebaConnectApp extends StatelessWidget {
+class SellShebaConnectApp extends StatefulWidget {
   const SellShebaConnectApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SellSheba Connect',
-      debugShowCheckedModeBanner: false,
+  State<SellShebaConnectApp> createState() => _SellShebaConnectAppState();
+}
 
-      // Theme settings with Dark Mode support
-      theme: lightTheme(),
-      darkTheme: darkTheme(),
-      themeMode: ThemeMode.system, // Starts by respecting system preference
-      // Start the app on the Login screen (or a splash screen)
-      // 2. ADD SUPPORTED LOCALES (English, Spanish, Bengali)
-      supportedLocales: const [
-        Locale('en', ''), // English
-        // Locale('es', ''), // Spanish
-        Locale('bn', ''), // Bengali
+class _SellShebaConnectAppState extends State<SellShebaConnectApp> {
+  final FlutterLocalization localization = FlutterLocalization.instance;
+
+  @override
+  void initState() {
+    localization.init(
+      mapLocales: [
+        const MapLocale('en', {}), // Add translation maps here eventually
+        const MapLocale('bn', {}),
       ],
-      home: Scaffold(
-        appBar: AppBar(title: Text('SellSheba')),
-        body: Center(child: Text('Text Center')),
-      ), // TEMP: Placeholder. We will start with Auth flow later.
+      initLanguageCode: 'en',
+    );
+    localization.onTranslatedLanguage = _onTranslatedLanguage;
+    super.initState();
+  }
+
+  void _onTranslatedLanguage(Locale? locale) {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => di.sl<ConfigurationBloc>()),
+        BlocProvider(create: (_) => di.sl<AuthBloc>()),
+      ],
+      child: MaterialApp.router(
+        title: 'SellSheba Connect',
+        debugShowCheckedModeBanner: false,
+        theme: lightTheme(),
+        darkTheme: darkTheme(),
+        themeMode: ThemeMode.system,
+        routerConfig: router,
+        supportedLocales: localization.supportedLocales,
+        localizationsDelegates: localization.localizationsDelegates,
+      ),
     );
   }
 }

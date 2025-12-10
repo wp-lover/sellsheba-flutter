@@ -20,8 +20,16 @@ class SellShebaConnectApp extends StatelessWidget {
       darkTheme: darkTheme(),
       themeMode: ThemeMode.system, // Starts by respecting system preference
       // Start the app on the Login screen (or a splash screen)
-      home:
-          const BranchSelectionPage(), // TEMP: Placeholder. We will start with Auth flow later.
+      // 2. ADD SUPPORTED LOCALES (English, Spanish, Bengali)
+      supportedLocales: const [
+        Locale('en', ''), // English
+        // Locale('es', ''), // Spanish
+        Locale('bn', ''), // Bengali
+      ],
+      home: Scaffold(
+        appBar: AppBar(title: Text('SellSheba')),
+        body: Center(child: Text('Text Center')),
+      ), // TEMP: Placeholder. We will start with Auth flow later.
     );
   }
 }

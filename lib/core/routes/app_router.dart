@@ -1,6 +1,9 @@
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/profile_page.dart';
 import '../../features/branch_management/presentation/pages/branch_selection_page.dart';
+import '../../features/branch_management/presentation/pages/branch_management_page.dart';
+import '../../features/branch_management/presentation/pages/create_branch_page.dart';
 import '../../features/branch_management/presentation/pages/main_dashboard_shell.dart';
 import '../../features/configuration/domain/repositories/configuration_repository.dart';
 import '../../features/configuration/presentation/pages/configuration_page.dart';
@@ -50,11 +53,29 @@ final router = GoRouter(
       builder: (context, state) => const LoginPage(),
     ),
 
+    GoRoute(
+      name: RouteConstants.profile,
+      path: RouteConstants.profilePath,
+      builder: (context, state) => const ProfilePage(),
+    ),
+
     // --- Branch Management ---
     GoRoute(
       name: RouteConstants.branchSelection,
       path: RouteConstants.branchSelectionPath,
       builder: (context, state) => const BranchSelectionPage(),
+    ),
+
+    GoRoute(
+      name: RouteConstants.branchManagement,
+      path: RouteConstants.branchManagementPath,
+      builder: (context, state) => const BranchManagementPage(),
+    ),
+
+    GoRoute(
+      name: RouteConstants.createBranch,
+      path: RouteConstants.createBranchPath,
+      builder: (context, state) => const CreateBranchPage(),
     ),
 
     // --- Dashboard ---

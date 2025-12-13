@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/routes/route_constants.dart';
+import '../../../../features/more/presentation/pages/more_page.dart';
+
 // Import your placeholder pages (you'll create these later)
 // import 'home_page.dart';
 // import 'inventory_page.dart';
@@ -19,7 +22,7 @@ class _MainDashboardShellState extends State<MainDashboardShell> {
     Text('Home Screen Placeholder'),
     Text('Inventory Screen Placeholder'),
     Text('Orders Screen Placeholder'),
-    Text('Settings Screen Placeholder'),
+    MorePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -35,24 +38,55 @@ class _MainDashboardShellState extends State<MainDashboardShell> {
       appBar: AppBar(
         title: const Text('SellSheba Connect | [Branch Name]'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // TODO: Implement settings navigation
-            },
-          ),
-          IconButton(
-            // Example: Button to toggle theme mode (for testing)
-            icon: Icon(
-              Theme.of(context).brightness == Brightness.dark
-                  ? Icons.wb_sunny
-                  : Icons.nights_stay,
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: PopupMenuButton<String>(
+              icon: const Icon(Icons.account_circle),
+              onSelected: (value) {
+                if (value == 'profile') {
+                  context.pushNamed(RouteConstants.profile);
+                } else if (value == 'logout') {
+                  // TODO: Implement actual logout logic (clear tokens, etc.)
+                  context.goNamed(RouteConstants.login);
+                } else if (value == 'staff') {
+                  // TODO: Navigate to staff management
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  const PopupMenuItem<String>(
+                    value: 'profile',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person, color: Colors.grey),
+                        SizedBox(width: 8),
+                        Text('Profile'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'staff',
+                    child: Row(
+                      children: [
+                        Icon(Icons.people, color: Colors.grey),
+                        SizedBox(width: 8),
+                        Text('Manage Staff'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'logout',
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout, color: Colors.grey),
+                        SizedBox(width: 8),
+                        Text('Logout'),
+                      ],
+                    ),
+                  ),
+                ];
+              },
             ),
-            onPressed: () {
-              // NOTE: Actual theme switching requires state management (e.g., BLoC or Provider)
-              // at the root of the app, which we will address later.
-              // This is a placeholder for the action.
-            },
           ),
         ],
       ),
@@ -68,10 +102,13 @@ class _MainDashboardShellState extends State<MainDashboardShell> {
             label: 'Inventory',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Orders'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.grid_view_rounded),
+            label: 'More',
+          ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).colorScheme.secondary,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
         type:

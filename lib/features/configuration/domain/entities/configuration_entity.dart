@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+// old, it may be depricated
 class ConfigurationEntity extends Equatable {
   final String siteUrl;
   final String licenseKey;

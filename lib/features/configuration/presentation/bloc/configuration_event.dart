@@ -1,23 +1,22 @@
+// features/configuration/presentation/bloc/configuration_event.dart
 part of 'configuration_bloc.dart';
 
 abstract class ConfigurationEvent extends Equatable {
   const ConfigurationEvent();
 
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [];
 }
 
-class SubmitConfigurationEvent extends ConfigurationEvent {
-  final String siteUrl;
-  final String licenseKey;
+class LoadConfiguration extends ConfigurationEvent {}
 
-  const SubmitConfigurationEvent({
-    required this.siteUrl,
-    required this.licenseKey,
-  });
+class SaveSiteUrl extends ConfigurationEvent {
+  final String url;
+
+  const SaveSiteUrl(this.url);
 
   @override
-  List<Object?> get props => [siteUrl, licenseKey];
+  List<Object> get props => [url];
 }
 
-class CheckConfigurationEvent extends ConfigurationEvent {}
+class ClearConfiguration extends ConfigurationEvent {}

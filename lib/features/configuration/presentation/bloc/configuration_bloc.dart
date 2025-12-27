@@ -1,6 +1,9 @@
+// features/configuration/presentation/bloc/configuration_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/configuration_entity.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/app_configuration.dart';
 import '../../domain/repositories/configuration_repository.dart';
 
 part 'configuration_event.dart';
@@ -11,40 +14,54 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
 
   ConfigurationBloc({required this.repository})
     : super(ConfigurationInitial()) {
-    on<SubmitConfigurationEvent>(_onSubmitConfiguration);
-    on<CheckConfigurationEvent>(_onCheckConfiguration);
+    on<LoadConfiguration>(_onLoad);
+    on<SaveSiteUrl>(_onSave);
+    on<ClearConfiguration>(_onClear);
+
+    add(LoadConfiguration()); // Auto-load on app start
   }
 
-  Future<void> _onSubmitConfiguration(
-    SubmitConfigurationEvent event,
+  Future<void> _onLoad(
+    LoadConfiguration event,
     Emitter<ConfigurationState> emit,
   ) async {
     emit(ConfigurationLoading());
-    final result = await repository.verifyAndSave(
-      siteUrl: event.siteUrl,
-      licenseKey: event.licenseKey,
-    );
-
-    result.fold(
-      (failure) =>
-          emit(const ConfigurationFailure(message: "Verification Failed")),
-      (success) => emit(ConfigurationSuccess()),
+    final result = await repository.getSavedConfiguration();
+    emit(
+      result.fold(
+        (failure) => ConfigurationError(message: _mapFailureToMessage(failure)),
+        (config) => config == null
+            ? ConfigurationEmpty()
+            : ConfigurationLoaded(config: config),
+      ),
     );
   }
 
-  Future<void> _onCheckConfiguration(
-    CheckConfigurationEvent event,
+  Future<void> _onSave(
+    SaveSiteUrl event,
     Emitter<ConfigurationState> emit,
   ) async {
-    emit(ConfigurationLoading());
-    final result = await repository.getConfiguration();
+    emit(ConfigurationSaving());
+    final config = AppConfiguration(baseUrl: event.url);
+    final result = await repository.saveConfiguration(config);
+    emit(
+      result.fold(
+        (failure) => ConfigurationError(message: _mapFailureToMessage(failure)),
+        (_) => ConfigurationSaved(config: config),
+      ),
+    );
+  }
 
-    result.fold((failure) => emit(ConfigurationInitial()), (config) {
-      if (config != null) {
-        emit(ConfigurationLoaded(config: config));
-      } else {
-        emit(ConfigurationInitial());
-      }
-    });
+  Future<void> _onClear(
+    ClearConfiguration event,
+    Emitter<ConfigurationState> emit,
+  ) async {
+    await repository.clearConfiguration();
+    emit(ConfigurationEmpty());
+  }
+
+  String _mapFailureToMessage(Failure failure) {
+    if (failure is CacheFailure) return 'Failed to save site URL';
+    return 'Unexpected error';
   }
 }

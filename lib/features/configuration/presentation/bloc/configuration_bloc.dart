@@ -1,24 +1,24 @@
 // features/configuration/presentation/bloc/configuration_bloc.dart
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import '../../../../core/error/failures.dart';
-import '../../domain/entities/app_configuration.dart';
-import '../../domain/repositories/configuration_repository.dart';
 
-part 'configuration_event.dart';
-part 'configuration_state.dart';
+import '../../../../core/repositories/app_settings_repository.dart';
+import '../../domain/entities/app_configuration.dart'; // Add this import
+
+part './configuration_event.dart';
+part './configuration_state.dart';
 
 class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
-  final ConfigurationRepository repository;
+  final AppSettingsRepository appSettingsRepo;
 
-  ConfigurationBloc({required this.repository})
+  ConfigurationBloc({required this.appSettingsRepo})
     : super(ConfigurationInitial()) {
     on<LoadConfiguration>(_onLoad);
     on<SaveSiteUrl>(_onSave);
-    on<ClearConfiguration>(_onClear);
 
-    add(LoadConfiguration()); // Auto-load on app start
+    add(LoadConfiguration()); // auto load on start
   }
 
   Future<void> _onLoad(
@@ -26,13 +26,13 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
     Emitter<ConfigurationState> emit,
   ) async {
     emit(ConfigurationLoading());
-    final result = await repository.getSavedConfiguration();
+    final result = await appSettingsRepo.getBaseUrl();
     emit(
       result.fold(
-        (failure) => ConfigurationError(message: _mapFailureToMessage(failure)),
-        (config) => config == null
+        (failure) => ConfigurationError(message: 'Failed to load site URL'),
+        (url) => url == null
             ? ConfigurationEmpty()
-            : ConfigurationLoaded(config: config),
+            : ConfigurationLoaded(config: AppConfiguration(baseUrl: url)),
       ),
     );
   }
@@ -42,26 +42,15 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
     Emitter<ConfigurationState> emit,
   ) async {
     emit(ConfigurationSaving());
-    final config = AppConfiguration(baseUrl: event.url);
-    final result = await repository.saveConfiguration(config);
+    final cleanedUrl = event.url.trim();
+    final config = AppConfiguration(baseUrl: cleanedUrl);
+
+    final result = await appSettingsRepo.saveBaseUrl(cleanedUrl);
     emit(
       result.fold(
-        (failure) => ConfigurationError(message: _mapFailureToMessage(failure)),
+        (failure) => ConfigurationError(message: 'Failed to save site URL'),
         (_) => ConfigurationSaved(config: config),
       ),
     );
-  }
-
-  Future<void> _onClear(
-    ClearConfiguration event,
-    Emitter<ConfigurationState> emit,
-  ) async {
-    await repository.clearConfiguration();
-    emit(ConfigurationEmpty());
-  }
-
-  String _mapFailureToMessage(Failure failure) {
-    if (failure is CacheFailure) return 'Failed to save site URL';
-    return 'Unexpected error';
   }
 }

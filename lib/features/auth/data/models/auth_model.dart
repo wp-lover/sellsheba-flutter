@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+
 import '../../domain/entities/auth_entity.dart';
 
 /**
@@ -9,19 +11,25 @@ class AuthModel extends AuthEntity {
     required super.token,
     required super.userId,
     required super.userDisplayName,
-    required super.userRole,
+    required super.userEmail,
+    required super.userNiceName,
+    required super.role,
   });
 
   factory AuthModel.fromJson(Map<String, dynamic> json) {
     return AuthModel(
-      token: json['token'] as String? ?? '',
-      userDisplayName: json['user_nicename'] as String? ?? '',
+      token: json['token'] as String? ?? 'token',
       // Default to 0 if not present, assuming API behavior described in original file
       userId: json['user_id'] != null
           ? int.tryParse(json['user_id'].toString()) ?? 0
           : 0,
+
+      userDisplayName:
+          json['user_display_name'] as String? ?? 'user_display_name',
+      userEmail: json['user_email'] ?? 'user_email',
+      userNiceName: json['user_nicename'] ?? 'user_nice_name',
       // Default role if not present
-      userRole: json['role'] as String? ?? 'sellsheba_employee',
+      role: json['roles'][0] as String? ?? 'sellsheba_employee',
     );
   }
 
@@ -30,7 +38,7 @@ class AuthModel extends AuthEntity {
       'token': token,
       'user_nicename': userDisplayName,
       'user_id': userId,
-      'role': userRole,
+      'role': role,
     };
   }
 
@@ -40,7 +48,9 @@ class AuthModel extends AuthEntity {
       token: token,
       userId: userId,
       userDisplayName: userDisplayName,
-      userRole: userRole,
+      userEmail: userEmail,
+      userNiceName: userNiceName,
+      role: role,
     );
   }
 }

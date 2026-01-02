@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
@@ -5,38 +6,36 @@ import '../../features/branch_management/presentation/pages/branch_selection_pag
 import '../../features/branch_management/presentation/pages/branch_management_page.dart';
 import '../../features/branch_management/presentation/pages/create_branch_page.dart';
 import '../../features/branch_management/presentation/pages/main_dashboard_shell.dart';
-import '../../features/configuration/domain/repositories/configuration_repository.dart';
 import '../../features/configuration/presentation/pages/configuration_page.dart';
 import '../di/injection_container.dart';
+import '../error/failures.dart';
+import '../repositories/app_settings_repository.dart';
 import 'route_constants.dart';
+
+final repo = sl<AppSettingsRepository>();
+final configured = _configured();
+
+Future<Either<Failure, bool>> _configured() async {
+  return repo.isConfigured();
+}
 
 final router = GoRouter(
   initialLocation: RouteConstants.configurationPath,
-  redirect: (context, state) async {
-    // 1. Check Configuration
-    final configRepo = sl<ConfigurationRepository>();
-    final configResult = await configRepo.getConfiguration();
 
-    final isConfigured = configResult.fold(
-      (failure) => false,
-      (config) => config != null,
-    );
+  // core/routes/app_router.dart
+  redirect: (context, state) async {
+    // Temporarily bypass configuration check
+    // We'll restore the full logic once ConfigurationRepository is complete
 
     final isConfigRoute =
         state.uri.toString() == RouteConstants.configurationPath;
 
-    if (!isConfigured) {
-      return isConfigRoute ? null : RouteConstants.configurationPath;
-    }
+    // If user is on config page, let them stay
+    if (isConfigRoute) return null;
 
-    if (isConfigured && isConfigRoute) {
-      // If already configured and trying to go to config, send to login
-      // TODO: Add check for Auth Token to decide between Login vs Dashboard
-      return RouteConstants.loginPath;
-    }
-
-    // Default: No redirect (let GoRouter go to the destination)
-    return null;
+    // Otherwise, go to login (or later to dashboard if token exists)
+    // TODO: Add proper auth check later
+    return RouteConstants.loginPath;
   },
   routes: [
     // --- Configuration ---

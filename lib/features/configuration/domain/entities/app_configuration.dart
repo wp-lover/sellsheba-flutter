@@ -1,4 +1,5 @@
 // features/configuration/domain/entities/app_configuration.dart
+
 class AppConfiguration {
   final String baseUrl;
 
@@ -13,4 +14,7 @@ class AppConfiguration {
 
   @override
   int get hashCode => baseUrl.hashCode;
+
+  @override
+  String toString() => 'AppConfiguration(baseUrl: $baseUrl)';
 }

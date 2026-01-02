@@ -11,9 +11,9 @@ class AuthEntity extends Equatable {
   // Basic user details
   final int userId;
   final String userDisplayName;
-
-  // Optional but useful for the app's internal logic and display
-  final String userRole; // e.g., 'sellsheba_employee', 'administrator'
+  final String userEmail;
+  final String userNiceName;
+  final String role;
 
   // Note: The JWT plugin may also return a 'refresh_token',
   // but we'll stick to the core token for now.
@@ -22,10 +22,19 @@ class AuthEntity extends Equatable {
     required this.token,
     required this.userId,
     required this.userDisplayName,
-    required this.userRole,
+    required this.userEmail,
+    required this.userNiceName,
+    required this.role,
   });
 
   // Equatable is used for clean object comparison
   @override
-  List<Object?> get props => [token, userId, userDisplayName, userRole];
+  List<Object?> get props => [
+    token,
+    userId,
+    userDisplayName,
+    userEmail,
+    userNiceName,
+    role,
+  ];
 }

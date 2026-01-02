@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'core/config/app_theme.dart';
+import 'core/network/custom_http_client.dart';
 import 'core/routes/app_router.dart';
 import 'features/configuration/presentation/bloc/configuration_bloc.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -12,6 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterLocalization.instance.ensureInitialized();
   await di.init();
+
   runApp(const SellShebaConnectApp());
 }
 

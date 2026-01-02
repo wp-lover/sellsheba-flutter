@@ -1,39 +1,71 @@
-// core/network/dio_client.dart
+// core/network/custom_http_client.dart
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import '../di/injection_container.dart' as di;
+import '../../core/repositories/app_settings_repository.dart';
 
-class DioClient {
-  static Dio? _instance;
+class CustomHttpClient {
+  static String? _baseUrl;
 
-  static Dio get instance {
-    if (_instance == null) {
-      throw Exception(
-        "DioClient not initialized. Call DioClient.initialize(baseUrl) first.",
-      );
+  // Private constructor
+  CustomHttpClient._();
+
+  // Load base URL if not already set
+  static Future<void> _ensureBaseUrl() async {
+    if (_baseUrl != null) return; // Already set
+
+    final repo = di.sl<AppSettingsRepository>();
+    final result = await repo.getBaseUrl();
+
+    final url = result.getOrElse(() => null);
+    if (url != null && url.isNotEmpty) {
+      _baseUrl = url;
+      if (kDebugMode) {
+        print("🔵 Lazy-loaded base URL: $_baseUrl");
+      }
     }
-    return _instance!;
   }
 
-  static void initialize(String baseUrl) {
-    final cleanedUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
+  // Public method to get Dio instance
+  static Future<Dio> dio() async {
+    await _ensureBaseUrl();
 
-    _instance = Dio(
+    if (_baseUrl == null) {
+      throw Exception("No site URL configured. Please set up the app first.");
+    }
+
+    final dio = Dio(
       BaseOptions(
-        baseUrl: cleanedUrl,
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
-        headers: {'Accept': 'application/json'},
+        baseUrl: _baseUrl!,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
       ),
     );
 
     if (kDebugMode) {
-      _instance!.interceptors.add(
+      dio.interceptors.add(
         LogInterceptor(requestBody: true, responseBody: true),
       );
     }
+
+    return dio;
   }
 
-  static void reset() {
-    _instance = null;
+  // Manual set (used in ConfigurationPage after save)
+  static void setBaseUrl(String url) {
+    _baseUrl = url.trim();
+    if (!_baseUrl!.endsWith('/')) _baseUrl = '$_baseUrl/';
+    if (kDebugMode) {
+      print("🔵 Base URL manually set: $_baseUrl");
+    }
+  }
+
+  // Clear for reconfiguration
+  static void clear() {
+    _baseUrl = null;
   }
 }

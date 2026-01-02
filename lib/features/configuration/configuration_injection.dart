@@ -8,6 +8,4 @@ Future<void> initConfiguration() async {
   sl.registerLazySingleton<ConfigurationRepository>(
     () => ConfigurationRepositoryImpl(secureStorage: sl()),
   );
-
-  sl.registerFactory(() => ConfigurationBloc(repository: sl()));
 }

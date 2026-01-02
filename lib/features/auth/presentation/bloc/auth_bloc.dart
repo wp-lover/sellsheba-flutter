@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sellsheba/core/network/custom_http_client.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -18,9 +19,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       username: event.username,
       password: event.password,
     );
+
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (auth) => emit(Authenticated(auth)),
+      (auth) => emit(Authenticated.now(auth)),
     );
   }
 

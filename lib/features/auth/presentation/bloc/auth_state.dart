@@ -14,9 +14,18 @@ class AuthLoading extends AuthState {}
 
 class Authenticated extends AuthState {
   final AuthEntity auth;
-  const Authenticated(this.auth);
+  final DateTime loginTime; // Add this
+  Authenticated(this.auth) : loginTime = DateTime(0);
+
+  // Factory for current time
+  factory Authenticated.now(AuthEntity auth) {
+    return Authenticated._internal(auth, DateTime.now());
+  }
+
+  const Authenticated._internal(this.auth, this.loginTime);
+
   @override
-  List<Object> get props => [auth];
+  List<Object> get props => [auth, loginTime];
 }
 
 class Unauthenticated extends AuthState {}

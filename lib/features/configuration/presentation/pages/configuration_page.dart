@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/app_theme.dart';
-import '../../../../core/network/custom_http_client.dart';
 import '../../../../core/routes/route_constants.dart';
 import '../bloc/configuration_bloc.dart';
 
@@ -55,7 +54,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         listener: (context, state) {
           if (state is ConfigurationSaved) {
             // Initialize Dio with the new base URL
-            DioClient.initialize(state.config.baseUrl);
+            // DioClient.initialize(state.config.baseUrl);
 
             // Navigate to login
             context.go(RouteConstants.loginPath);

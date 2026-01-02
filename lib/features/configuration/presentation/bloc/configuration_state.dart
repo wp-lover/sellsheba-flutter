@@ -1,5 +1,6 @@
 // features/configuration/presentation/bloc/configuration_state.dart
-part of 'configuration_bloc.dart';
+
+part of './configuration_bloc.dart';
 
 abstract class ConfigurationState extends Equatable {
   const ConfigurationState();

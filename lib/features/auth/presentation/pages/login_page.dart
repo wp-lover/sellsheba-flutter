@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/app_theme.dart';
 import '../../../../core/routes/route_constants.dart';
+import '../../../../core/network/custom_http_client.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -32,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          print(state);
           if (state is Authenticated) {
             context.go(RouteConstants.branchSelectionPath);
           } else if (state is AuthError) {
@@ -120,6 +122,8 @@ class _LoginPageState extends State<LoginPage> {
                           ? null
                           : () {
                               if (_formKey.currentState!.validate()) {
+                                // Add this line
+
                                 context.read<AuthBloc>().add(
                                   LoginEvent(
                                     username: _usernameController.text.trim(),
